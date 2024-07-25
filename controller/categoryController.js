@@ -130,6 +130,8 @@ const updateCategory = async (req,res) => {
     }
 };
 
+
+// DELETING CATEGORY 
 const deleteCategory = async (req,res) => {
     try {
         const {id} = req.params;
@@ -138,7 +140,7 @@ const deleteCategory = async (req,res) => {
         {
             return res.status(404).send({
                 success: false,
-                message: "Please provide ID to update category"
+                message: "Please provide ID to delete category"
             });
         }
 

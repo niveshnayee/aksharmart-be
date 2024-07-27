@@ -24,10 +24,11 @@ const isAdmin = async (req,res,next) => {
         const user = await userModel.findById(req.user._id);
 
         if(!user.role){
-            console.log("access aprrove!!");
+            console.log("access not approve");
             res.status(401).send({
                 success : false,
-                message : "UnAuthorized Access"
+                message : "UnAuthorized Access",
+                ok : false
             });
         }
         else{

@@ -7,9 +7,10 @@ const createCategory = async(req,res) =>
 {
     try {
         const {name} = req.body;
+        console.log("reading name at controller : ",name);
 
         if(!name){
-            return res.status(404).send({
+            return res.status(401).send({
                 success: false,
                 message: "Category name required"
             });

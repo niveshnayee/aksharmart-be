@@ -9,8 +9,8 @@ const createCategory = async(req,res) =>
         const {name} = req.body;
         console.log("reading name at controller : ",name);
 
-        if(!name){
-            return res.status(401).send({
+        if(!name.trim()){
+            return res.status(400).send({
                 success: false,
                 message: "Category name required"
             });
@@ -19,7 +19,7 @@ const createCategory = async(req,res) =>
         const  existingCategory = await CategoryModel.findOne({name});
         if(existingCategory)
         {
-            return res.status(401).send({
+            return res.status(409).send({
                 success: false,
                 message : "Category Already Exists"
             });
@@ -70,7 +70,7 @@ const getCategory = async (req,res) => {
     try {
         const category = await CategoryModel.findOne({slug:req.params.slug});
         if(!category){
-            return res.status(401).send({
+            return res.status(404).send({
                 success: false,
                 message: "Category not found"
             });
@@ -99,14 +99,14 @@ const updateCategory = async (req,res) => {
         const {id} = req.params;
 
         if(!name.trim()){
-            return res.status(404).send({
+            return res.status(400).send({
                 success: false,
                 message: "Please provide name to update category"
             });
         }
         if(!id)
         {
-            return res.status(404).send({
+            return res.status(400).send({
                 success: false,
                 message: "Please provide ID to update category"
             });

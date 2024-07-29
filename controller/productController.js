@@ -9,7 +9,8 @@ import fs from 'fs'
 const createProduct = async(req,res) =>
 {
     try {
-        const {name, description, price, category, qauntity} = req.fields;
+        const {name, description, price, category, quantity, shipping} = req.fields;
+        
         const {photo} = req.files;
 
         switch(true){
@@ -21,7 +22,7 @@ const createProduct = async(req,res) =>
                 return res.status(401).send({success: false, message: "Price is required"});
             case !category:
                 return res.status(401).send({success: false, message: "Category id is required"});
-            case !qauntity:
+            case !quantity:
                 return res.status(401).send({success: false, message: "Quantity is required"});
             case photo && photo.size > 1000000:
                 return res.status(401).send({success: false, message: "Photo should be less than 1MB"});

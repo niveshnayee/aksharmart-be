@@ -1,6 +1,6 @@
 import express from "express";
 import { isAdmin, tokenVerify } from "../middlewares/authMiddleware.js";
-import { createProduct, getAllProduct, getProduct, getPhoto, updateProduct, deleteProduct} from "../controller/productController.js";
+import { createProduct, getAllProduct, getProduct, getPhoto, updateProduct, deleteProduct, getProductByCategory} from "../controller/productController.js";
 import formidable from "express-formidable";
 
 // Routing object
@@ -12,6 +12,9 @@ router.post("/create", tokenVerify, isAdmin, formidable(), createProduct);
 
 // GET METHOD, GETTING ALL PRODUCT
 router.get("/get-all", getAllProduct);
+
+// GET METHOD, GETTING PRODUCT BY CATEGORY ID
+router.get("/get/by/:slug", getProductByCategory);
 
 // GET METHOD, GET SPECIFIC PRODUCT by SLUG
 router.get("/get-product/:slug", getProduct);

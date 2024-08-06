@@ -77,6 +77,51 @@ const getAllProduct = async(req,res) =>
 };
 
 
+// GET Product by Category ID
+const getProductByCategory = async(req,res) =>
+{
+    try {
+        // const products = await productModel.find({category : req.params.id}).select("-photo").populate("category").limit(12);
+
+        const products = await productModel.aggregate([
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'Categories'
+                }
+            },
+            {
+                $unwind: '$Categories'
+            },
+            {
+                $match: { 'Categories.slug': req.params.slug}
+            },
+            {
+                $project: {photo : 0}
+            },
+            {
+                $limit : 12
+            }
+        ]);
+
+        return res.status(200).send({
+            success: true,
+            message: "products by category",
+            products
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            message: "Something went wrong in server side",
+            error
+        });
+    }
+};
+
+
 
 // TO GET SPECIFIC PRODUCT 
 const getProduct = async(req,res) =>
@@ -139,7 +184,7 @@ const getPhoto = async(req,res) => {
 const updateProduct = async(req,res) =>
 {
     try {
-        const {name, description, price, category, qauntity} = req.fields;
+        const {name, description, price, category, quantity} = req.fields;
         const {photo} = req.files;
 
         switch(true){
@@ -151,7 +196,7 @@ const updateProduct = async(req,res) =>
                 return res.status(401).send({success: false, message: "Price is required"});
             case !category:
                 return res.status(401).send({success: false, message: "Category id is required"});
-            case !qauntity:
+            case !quantity:
                 return res.status(401).send({success: false, message: "Quantity is required"});
             case photo && photo.size > 1000000:
                 return res.status(401).send({success: false, message: "Photo should be less than 1MB"});
@@ -164,6 +209,7 @@ const updateProduct = async(req,res) =>
             updatedProduct.photo.data = fs.readFileSync(photo.path);
             updatedProduct.photo.contentType = photo.type;
         }
+
 
         await updatedProduct.save();
 
@@ -217,4 +263,4 @@ const deleteProduct = async(req,res) =>
 
 
 
-export {createProduct, getAllProduct, getProduct, getPhoto, updateProduct, deleteProduct};
+export {createProduct, getAllProduct, getProduct, getPhoto, updateProduct, deleteProduct, getProductByCategory};

@@ -9,9 +9,14 @@ const categorySchema = new mongoose.Schema({
     },
     slug: {
         type: String,
-        lowercase : true
+        lowercase : true,
+        unique: true,
+        required : true,
     }
         
 });
+
+// Create an index on the slug field for faster queries
+categorySchema.index({ slug: 1 });
 
 export default mongoose.model('Category', categorySchema);

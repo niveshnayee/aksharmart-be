@@ -57,7 +57,25 @@ const createProduct = async(req,res) =>
 const getAllProduct = async(req,res) =>
 {
     try {
-        const products = await productModel.find({}).select("-photo").populate("category").limit(20).sort({createdAt : -1});
+        const {page, itemPerPage} = req.query
+        if(!page && !itemPerPage)
+        {
+            const products = await productModel.find({}).select("-photo").populate("category").limit(20).sort({createdAt : -1});
+
+            return res.status(200).send({
+                success: true,
+                message: "All products",
+                products,
+                length : products.length
+            });
+        }
+
+        const products = await productModel
+            .find({})
+            .select("-photo")
+            .skip((page-1) * itemPerPage)
+            .limit(itemPerPage)
+            .sort({createdAt: -1});
 
         return res.status(200).send({
             success: true,
@@ -65,6 +83,7 @@ const getAllProduct = async(req,res) =>
             products,
             length : products.length
         });
+        
         
     } catch (error) {
         console.log(error);
@@ -262,5 +281,33 @@ const deleteProduct = async(req,res) =>
 };
 
 
+const productFilterController = async(req, res) =>
+{
+    try {
+        const {checked, radio} = req.body;
 
-export {createProduct, getAllProduct, getProduct, getPhoto, updateProduct, deleteProduct, getProductByCategory};
+        let args = {};
+
+        if(checked.length > 0) args.category = checked;
+        if(radio.length) args.price = {$gte: radio[0] , $lte: radio[1]};
+
+        const products = await productModel.find(args).select("-photo");
+        return res.status(200).send({
+            success: true,
+            message: "filter action success!",
+            products
+        });
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            message: "Something went wrong from server",
+            error
+        }); 
+    }
+};
+
+
+
+export {createProduct, getAllProduct, getProduct, getPhoto, updateProduct, deleteProduct, getProductByCategory, productFilterController};

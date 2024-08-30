@@ -57,7 +57,8 @@ const createProduct = async(req,res) =>
 const getAllProduct = async(req,res) =>
 {
     try {
-        const {page, itemPerPage} = req.query
+        // Extract page and itemPerPage from query parameters
+        let { page, itemPerPage, search } = req.query;
         if(!page && !itemPerPage)
         {
             const products = await productModel.find({}).select("-photo").populate("category").limit(20).sort({createdAt : -1});
@@ -70,8 +71,24 @@ const getAllProduct = async(req,res) =>
             });
         }
 
+        let args = {};
+        if(search)
+        {
+            args.$or = [
+                {name: {$regex: search, $options: 'i'}},
+                {description: {$regex: search, $options: 'i'}},
+                // {category: {$regex: search, $options: 'i'}}
+            ]
+        }
+        // Parse page and itemPerPage as integers
+        page = parseInt(page, 10);
+        itemPerPage = parseInt(itemPerPage, 10);
+
+        // Get the total count of products
+        const totalProducts = await productModel.countDocuments(args);
+
         const products = await productModel
-            .find({})
+            .find(args)
             .select("-photo")
             .skip((page-1) * itemPerPage)
             .limit(itemPerPage)
@@ -81,7 +98,8 @@ const getAllProduct = async(req,res) =>
             success: true,
             message: "All products",
             products,
-            length : products.length
+            length : products.length,
+            totalProducts
         });
         
         
@@ -284,18 +302,35 @@ const deleteProduct = async(req,res) =>
 const productFilterController = async(req, res) =>
 {
     try {
-        const {checked, radio} = req.body;
+        const {checked, radio, page, itemPerPage} = req.body;
 
         let args = {};
+       
 
         if(checked.length > 0) args.category = checked;
         if(radio.length) args.price = {$gte: radio[0] , $lte: radio[1]};
 
-        const products = await productModel.find(args).select("-photo");
+        // // Parse page and itemPerPage as integers
+        // page = parseInt(page, 10);
+        // itemPerPage = parseInt(itemPerPage, 10);
+
+        // Get the total count of products
+        const totalProducts = await productModel.countDocuments(args);
+
+        const products = await productModel
+            .find(args)
+            .select("-photo")
+            .skip((page-1) * itemPerPage)
+            .limit(itemPerPage)
+            .sort({createdAt: -1});
+
+
         return res.status(200).send({
             success: true,
-            message: "filter action success!",
-            products
+            message: "All products",
+            products,
+            length : products.length,
+            totalProducts
         });
         
     } catch (error) {

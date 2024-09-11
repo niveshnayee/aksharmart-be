@@ -298,7 +298,7 @@ const deleteProduct = async(req,res) =>
     }
 };
 
-
+// Filter product details requirements 
 const productFilterController = async(req, res) =>
 {
     try {
@@ -343,6 +343,34 @@ const productFilterController = async(req, res) =>
     }
 };
 
+// related products to show
+const relatedProduct = async (req, res) =>
+{
+    try {
+        const {pid, cid} = req.params;
+
+        const related_products = await productModel.find({
+            category: cid,
+            _id : {$ne: pid}
+        }).select("-photo").limit(4);
+
+        return res.status(200).send({
+                success: true,
+                message: "related products",
+                related_products
+            });
+
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            message: "Something went wrong from server",
+            error
+        });
+    }
+};
 
 
-export {createProduct, getAllProduct, getProduct, getPhoto, updateProduct, deleteProduct, getProductByCategory, productFilterController};
+
+export {createProduct, getAllProduct, getProduct, getPhoto, updateProduct, deleteProduct, getProductByCategory, productFilterController, relatedProduct};

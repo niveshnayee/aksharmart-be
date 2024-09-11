@@ -1,6 +1,6 @@
 import express from "express";
 import { isAdmin, tokenVerify } from "../middlewares/authMiddleware.js";
-import { createProduct, getAllProduct, getProduct, getPhoto, updateProduct, deleteProduct, getProductByCategory, productFilterController} from "../controller/productController.js";
+import { createProduct, getAllProduct, getProduct, getPhoto, updateProduct, deleteProduct, getProductByCategory, productFilterController, relatedProduct} from "../controller/productController.js";
 import formidable from "express-formidable";
 
 // Routing object
@@ -30,6 +30,9 @@ router.delete("/delete-product/:id", tokenVerify, isAdmin, formidable(),deletePr
 
 //GET METHOD, FILTER PRODUCTS
 router.post("/filter-products", productFilterController);
+
+// GET METHOD, RELATED PRODUCTS
+router.get("/related-products/:pid/:cid", relatedProduct)
 
 
 export default router;
